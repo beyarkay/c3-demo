@@ -36,18 +36,20 @@ jobs:
     # Convert the yaml files found at `calendars/*.yaml` to calendars
     - name: Create Cool Calendars
       uses: beyarkay/c3@main
+      id: CREATE-YAML
       with:
         glob: "calendars/*.yaml"
 
-    # TODO: Actually publish the calendars
-
-#    - name: Update latest release with new calendars
-#      uses: beyarkay/update-existing-release@master
-#      with:
-#        token: ${{ secrets.GH_ACTIONS_PAT }}
-#        release: Latest Cool Calendars
-#        updateTag: true
-#        tag: latest-calendars
-#        replace: true
-#        files: ${{ steps.LS-CALENDARS.outputs.LS_CALENDARS }}
-#        body: "Calendars"
+    - name: Update latest release with new calendars
+      uses: beyarkay/update-existing-release@master
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        release: Latest Cool Calendars
+        updateTag: true
+        tag: latest-calendars
+        replace: true
+        files: ${{ steps.CREATE-YAML.outputs.file-paths }}
+        body: "This is an example release showing how you can publish internet
+          calendars that are available via github. Simply copy one of the links
+          to the files below into your calendar app and you'll get all the
+          latest updates as they happen!"
