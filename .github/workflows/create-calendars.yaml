@@ -31,7 +31,7 @@ jobs:
 
     # Actually run the python script to generate the yaml files
     - name: Run python script
-      run: python cool-calendars.py
+      run: python create-calendars.py
 
     # Convert the yaml files found at `calendars/*.yaml` to calendars
     - name: Create Cool Calendars
