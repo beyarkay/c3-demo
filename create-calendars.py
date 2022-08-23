@@ -9,27 +9,37 @@ def main():
     events = [
         {
             "title": "An example event title",
-            "description": "This event was created by [c3](https://github.com/beyarkay/c3)",
+            "description": "An example description.",
             "start": datetime.now(),
             "end": datetime.now() + timedelta(hours=3),
         },
+        {
+            "title": "An example all-day event",
+            "description": "An example description for the all-day event.",
+            "start": str(datetime.now().date()),
+            "end": str(datetime.now().date()),
+        },
     ]
     
-    # Also collect weather data from a website, scrape it with BeautifulSoup,
-    # and add that data as a calendar event
-    weather_url = "https://www.timeanddate.com/weather/south-africa/stellenbosch"
+    # Attempt to collect weather data from a website, scrape it with
+    # BeautifulSoup, and add that data as a calendar event
+    weather_url = "https://www.yr.no/en/details/table/2-3361025/Republic%20of%20South%20Africa/Western%20Cape/Cape%20Winelands%20District%20Municipality/Stellenbosch"
     res = requests.get(weather_url)
     if res.ok:
-        soup = BeautifulSoup(res.text, 'html.parser')
-        selector = '.table > tbody:nth-child(1) > tr:nth-child(5) > td:nth-child(2)'
-        txt = soup.select_one(selector)
-        print(txt)
-        events.append({
-            "title": f"{txt.text} in Stellenbosch",
-            "description": f"Data from {weather_url}\nThis event was created by [c3](https://github.com/beyarkay/c3)",
-            "start": str(datetime.now())[:10],
-            "end": str(datetime.now())[:10],
-        })
+        # Try-except the whole thing so the calendars don't fail just because
+        # a website is down
+        try:
+            soup = BeautifulSoup(res.text, 'html.parser')
+            selector = 'div.hourly-weather-table:nth-child(2) > div:nth-child(1) > div:nth-child(3) > table:nth-child(1) > tbody:nth-child(3) > tr:nth-child(1) > td:nth-child(7) > span:nth-child(1) > span:nth-child(1)'
+            txt = soup.select_one(selector)
+            events.append({
+                "title": f"{txt.text}hPa in Stellenbosch",
+                "description": f"Data from {weather_url}",
+                "start": str(datetime.now().date()),
+                "end": str(datetime.now().date()),
+            })
+        except Exception as e:
+            print(f"Failed to get weather events: {e}")
 
     # Create a directory to contain our calendars
     print("Creating directory `calendars/`")
