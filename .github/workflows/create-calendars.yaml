@@ -1,0 +1,53 @@
+# The name of this workflow
+name: My Cool Calendar Creator
+
+# When a push is received to branch `main` that changes `create-calendars.py`,
+# run the workflow. Also allow the workflow to be run manually.
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'create-calendars.py'
+  workflow_dispatch:
+
+jobs:
+  create-calendars:
+    runs-on: ubuntu-latest
+    steps:
+    # First we need to checkout the repository on the machine
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    # Setup python and set pip to cache dependencies
+    - name: Setup python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+        cache: 'pip' # caching pip dependencies
+
+    # Install libraries via pip from requirements.txt
+    - name: Pip install requirements
+      run: pip install -r requirements.txt
+
+    # Actually run the python script to generate the yaml files
+    - name: Run python script
+      run: python cool-calendars.py
+
+    # Convert the yaml files found at `calendars/*.yaml` to calendars
+    - name: Create Cool Calendars
+      uses: beyarkay/c3@main
+      with:
+        glob: "calendars/*.yaml"
+
+    # TODO: Actually publish the calendars
+
+#    - name: Update latest release with new calendars
+#      uses: beyarkay/update-existing-release@master
+#      with:
+#        token: ${{ secrets.GH_ACTIONS_PAT }}
+#        release: Latest Cool Calendars
+#        updateTag: true
+#        tag: latest-calendars
+#        replace: true
+#        files: ${{ steps.LS-CALENDARS.outputs.LS_CALENDARS }}
+#        body: "Calendars"
